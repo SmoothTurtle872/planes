@@ -8,6 +8,7 @@ function aviation:load:
     scoreboard objectives add aviation.planes.yaw dummy
     scoreboard objectives add aviation.planes.velocity dummy
     scoreboard objectives add aviation.planes.math dummy
+    scoreboard objectives add aviation.planes.temp dummy
     scoreboard objectives add aviation.planes.constants dummy
     scoreboard players set ground_friction aviation.planes.constants 90
 

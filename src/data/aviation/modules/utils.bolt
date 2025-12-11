@@ -6,3 +6,10 @@ def scale_plane_value(value_score: str, amount_score: str, amount_id: str):
     data modify storage aviation.planes:temp value set value value_score
     function aviation:utils/scale_by_percent with storage aviation.planes:temp
     execute store result score @s value_score run data get storage aviation.planes:temp scaled
+
+def check_collision(x:int,y:int,z:int,rotation_space:str):
+    scoreboard players set collisions aviation.planes.temp 0
+    for i in range(x):
+        for j in range(z):
+            for k in range(y):
+                execute align xyz positioned f"{rotation_space}{1+(-x/2)}" f"{rotation_space}{1+(-y/2)}" f"{rotation_space}{1+(-z/2)}" unless block f"{rotation_space}{i}" f"{rotation_space}{k}" f"{rotation_space}{j}" air run scoreboard players add collisions aviation.planes.temp 1
