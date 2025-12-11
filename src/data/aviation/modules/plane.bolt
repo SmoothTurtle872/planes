@@ -1,6 +1,8 @@
+## --- UTILS --- ##
 import aviation:utils as utils
 prefix = "aviation.plane"
 
+## --- FUNCTIONS --- ##
 function aviation:planes/move/loop:
     scoreboard players remove temp aviation.planes.velocity 1
     tp @s ^ ^ ^0.01
@@ -26,13 +28,25 @@ function aviation:planes/new:
 
 
 function aviation:planes/state_controller:
-    execute on passengers if entity @s[type=player,predicate=aviation:planes/accellerate] as @n[tag=f"{prefix}.self"]:
-        scoreboard players add @s aviation.planes.velocity 100
-    execute if entity @s[tag=f"{prefix}.state.in_air",tag=!f"{prefix}.state.on_ground"]
+    execute on passengers:
+        if entity @s[type=player,predicate=aviation:planes/accellerate] as @n[tag=f"{prefix}.self"]:
+            scoreboard players add @s aviation.planes.velocity 100
+    execute if entity @s[tag=f"{prefix}.state.in_air",tag=!f"{prefix}.state.on_ground"]:
+        utils.scale_plane_value(value_score="aviation.planes.velocity",amount_id="ground_friction", amount_score="aviation.planes.constants")
+        execute on passengers:
+            if entity @s[type=player,predicate=aviation:planes/pitch/up] as @n[tag=f"{prefix}.self"]:
+                scoreboard players add @s aviation.planes.pitch 10
+            if entity @s[type=player,predicate=aviation:planes/pitch/down] as @n[tag=f"{prefix}.self"]:
+                scoreboard players remove @s aviation.planes.pitch 10
     execute if entity @s[tag=f"{prefix}.state.on_ground",tag=!f"{prefix}.state.in_air"]:
         utils.scale_plane_value(value_score="aviation.planes.velocity",amount_id="ground_friction", amount_score="aviation.planes.constants")
+        
+        execute if score @s aviation.planes.velocity matches 500.. on passengers if entity @s[type=player,predicate=aviation:planes/pitch/up] as @n[tag=f"{prefix}.self"]:
+            tag @s remove f"{prefix}.state.on_ground"
+            tag @s add f"{prefix}.state.in_air"
 
     execute if score @s aviation.planes.velocity matches 1.. run function aviation:planes/move
+    execute store result entity @s Rotation[1] float -0.01 run scoreboard players get @s aviation.planes.pitch
         
 
 function aviation:planes/tick:
@@ -43,3 +57,45 @@ function aviation:planes/tick:
 
     function aviation:planes/state_controller
     tag @s remove f"{prefix}.self"
+
+
+
+## --- PREDICATES --- ##
+predicate aviation:planes/pitch/up {
+	"condition": "minecraft:entity_properties",
+	"entity": "this",
+	"predicate": {
+		"type_specific": {
+			"type": "minecraft:player",
+			"input": {
+				"forward": true
+			}
+		}
+	}
+}
+
+predicate aviation:planes/pitch/down {
+	"condition": "minecraft:entity_properties",
+	"entity": "this",
+	"predicate": {
+		"type_specific": {
+			"type": "minecraft:player",
+			"input": {
+				"backward": true
+			}
+		}
+	}
+}
+
+predicate aviation:planes/accellerate {
+	"condition": "minecraft:entity_properties",
+	"entity": "this",
+	"predicate": {
+		"type_specific": {
+			"type": "minecraft:player",
+			"input": {
+				"jump": true
+			}
+		}
+	}
+}

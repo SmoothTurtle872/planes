@@ -26,16 +26,3 @@ append function_tag minecraft:tick {
         "aviation:tick"
     ]
 }
-
-predicate aviation:planes/accellerate {
-	"condition": "minecraft:entity_properties",
-	"entity": "this",
-	"predicate": {
-		"type_specific": {
-			"type": "minecraft:player",
-			"input": {
-				"jump": true
-			}
-		}
-	}
-}
