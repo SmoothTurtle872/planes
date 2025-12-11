@@ -1,0 +1,41 @@
+import aviation:plane as plane
+
+function aviation:load:
+    tellraw @a [{text:"The Code is Load! ", color:"green"},{text:"(Aviation)",color:"gray"}]
+
+    scoreboard objectives add avation.planes.pitch dummy
+    scoreboard objectives add avation.planes.roll dummy
+    scoreboard objectives add avation.planes.yaw dummy
+    scoreboard objectives add avation.planes.velocity dummy
+    scoreboard objectives add aviation.planes.math dummy
+    scoreboard objectives add aviation.planes.constants dummy
+    scoreboard players set ground_friction aviation.planes.constants 90
+
+
+append function_tag minecraft:load {
+    "values" : [
+        "aviation:load"
+    ]
+}
+
+function aviation:tick:
+    execute as @e[tag=aviation.plane,tag=aviation.plane.root] run function aviation:planes/tick
+
+append function_tag minecraft:tick {
+    "values" : [
+        "aviation:tick"
+    ]
+}
+
+predicate aviation:planes/accellerate {
+	"condition": "minecraft:entity_properties",
+	"entity": "this",
+	"predicate": {
+		"type_specific": {
+			"type": "minecraft:player",
+			"input": {
+				"jump": true
+			}
+		}
+	}
+}

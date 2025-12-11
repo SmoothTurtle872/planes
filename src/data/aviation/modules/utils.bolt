@@ -1,0 +1,8 @@
+function aviation:utils/scale_by_percent:
+    $execute store result storage aviation.planes:temp scaled float $(multiplier) run scoreboard players get @s $(value)
+
+def scale_plane_value(value_score: str, amount_score: str, amount_id: str):
+    execute store result storage aviation.planes:temp multiplier float 0.01 run scoreboard players get amount_id amount_score
+    data modify storage aviation.planes:temp value set value value_score
+    function aviation:utils/scale_by_percent with storage aviation.planes:temp
+    execute store result score @s value_score run data get storage aviation.planes:temp scaled

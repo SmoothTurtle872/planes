@@ -1,0 +1,22 @@
+{
+    "name":"Aviation DP",
+    "description": "Adding aviation into minecraft",
+    "require": [
+        "bolt"
+    ],
+    "data_pack":{
+        "load": ["src"],
+        "min_format": 88,
+        "max_format": 88
+    },
+    "resource_pack":{
+        "load": ["src"]
+    },
+    "pipeline": ["mecha"],
+    "output":"/home/bazzite/.var/app/com.atlauncher.ATLauncher/data/instances/DatapackDeveloper1219/saves/Planes/datapacks",
+    "meta": {
+        "bolt": {
+            "entrypoint": ["aviation:main"]
+        }
+    }
+}

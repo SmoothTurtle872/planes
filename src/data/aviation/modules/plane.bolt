@@ -1,0 +1,33 @@
+import aviation:utils as utils
+prefix = "aviation.plane"
+
+function aviation:planes/new:
+    execute summon interaction:
+        tag @s add f"{prefix}.root"
+        tag @s add f"{prefix}.state.on_ground"
+        tag @s add prefix
+
+
+        scoreboard players set @s avation.planes.velocity 0
+        scoreboard players set @s avation.planes.pitch 0
+        scoreboard players set @s avation.planes.yaw 0
+        scoreboard players set @s avation.planes.roll 0
+
+
+
+function aviation:planes/state_controller:
+    execute on passengers if entity @s[type=player,predicate=aviation:planes/accellerate] as @n[tag=f"{prefix}.self"]:
+        scoreboard players add @s aviation.planes.velocity 10
+    execute if entity @s[tag=f"{prefix}.state.in_air",tag=!f"{prefix}.state.on_ground"]
+    execute if entity @s[tag=f"{prefix}.state.on_ground",tag=!f"{prefix}.state.in_air"]:
+        utils.scale_plane_value(value_score="avation.planes.velocity",amount_id="ground_friction", amount_score="aviation.planes.constants")
+        
+
+function aviation:planes/tick:
+    tag @s add f"{prefix}.self"
+    execute if data entity @s interaction:
+        execute on target run ride @s mount @n[tag=f"{prefix}.self"]
+        data remove entity @s interaction
+
+    function aviation:planes/state_controller
+    tag @s remove f"{prefix}.self"
