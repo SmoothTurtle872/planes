@@ -5,15 +5,19 @@
         "bolt"
     ],
     "data_pack":{
-        "load": ["src"],
+        "load": ["src/dp"],
         "min_format": 88,
-        "max_format": 88
+        "max_format": 88,
+        "zipped": true
     },
     "resource_pack":{
-        "load": ["src"]
+        "load": ["src/rp"],
+        "zipped": true,
+        "name": "Aviation RP",
+        "description": "Textures and models for my aviation datapack"
     },
     "pipeline": ["mecha"],
-    "output":"/home/bazzite/.var/app/com.atlauncher.ATLauncher/data/instances/DatapackDeveloper1219/saves/Planes/datapacks",
+    "output":"build",
     "meta": {
         "bolt": {
             "entrypoint": ["aviation:main"]
