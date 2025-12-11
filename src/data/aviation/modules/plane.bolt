@@ -1,6 +1,16 @@
 import aviation:utils as utils
 prefix = "aviation.plane"
 
+function aviation:planes/move/loop:
+    scoreboard players remove temp aviation.planes.velocity 1
+    tp @s ^ ^ ^0.01
+    execute at @s if score temp aviation.planes.velocity matches 1.. run function aviation:planes/move/loop
+
+function aviation:planes/move:
+    scoreboard players operation temp aviation.planes.velocity = @s aviation.planes.velocity
+    execute at @s run function aviation:planes/move/loop
+
+
 function aviation:planes/new:
     execute summon interaction:
         tag @s add f"{prefix}.root"
@@ -8,19 +18,21 @@ function aviation:planes/new:
         tag @s add prefix
 
 
-        scoreboard players set @s avation.planes.velocity 0
-        scoreboard players set @s avation.planes.pitch 0
-        scoreboard players set @s avation.planes.yaw 0
-        scoreboard players set @s avation.planes.roll 0
+        scoreboard players set @s aviation.planes.velocity 0
+        scoreboard players set @s aviation.planes.pitch 0
+        scoreboard players set @s aviation.planes.yaw 0
+        scoreboard players set @s aviation.planes.roll 0
 
 
 
 function aviation:planes/state_controller:
     execute on passengers if entity @s[type=player,predicate=aviation:planes/accellerate] as @n[tag=f"{prefix}.self"]:
-        scoreboard players add @s aviation.planes.velocity 10
+        scoreboard players add @s aviation.planes.velocity 100
     execute if entity @s[tag=f"{prefix}.state.in_air",tag=!f"{prefix}.state.on_ground"]
     execute if entity @s[tag=f"{prefix}.state.on_ground",tag=!f"{prefix}.state.in_air"]:
-        utils.scale_plane_value(value_score="avation.planes.velocity",amount_id="ground_friction", amount_score="aviation.planes.constants")
+        utils.scale_plane_value(value_score="aviation.planes.velocity",amount_id="ground_friction", amount_score="aviation.planes.constants")
+
+    execute if score @s aviation.planes.velocity matches 1.. run function aviation:planes/move
         
 
 function aviation:planes/tick:
