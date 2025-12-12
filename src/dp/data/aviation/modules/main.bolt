@@ -15,7 +15,8 @@ function aviation:load:
 
 append function_tag minecraft:load {
     "values" : [
-        "aviation:load"
+        "aviation:load",
+        "quack:api/create_scoreboards"
     ]
 }
 

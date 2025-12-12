@@ -22,4 +22,3 @@ def check_top_collisions(x:int,y:int,z:int,rotation_space:str):
     execute at @s:
         check_collision(x,y,z,rotation_space)
     data modify entity @s Pos[1] set from storage aviation.planes:temp collision.og_pos[1]
-                
