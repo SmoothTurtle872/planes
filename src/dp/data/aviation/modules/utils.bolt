@@ -7,18 +7,13 @@ def scale_plane_value(value_score: str, amount_score: str, amount_id: str):
     function aviation:utils/scale_by_percent with storage aviation.planes:temp
     execute store result score @s value_score run data get storage aviation.planes:temp scaled
 
-def check_collision(x:int,y:int,z:int,rotation_space:str):
+def check_collision(x:int,y:int,z:int,rotation_space:str,debug:bool = False):
     scoreboard players set collisions aviation.planes.temp 0
     for i in range(x):
         for j in range(z):
             for k in range(y):
                 execute align xyz positioned f"{rotation_space}{1+(-x/2)}" f"{rotation_space}{1+(-y/2)}" f"{rotation_space}{1+(-z/2)}" unless block f"{rotation_space}{i}" f"{rotation_space}{k}" f"{rotation_space}{j}" air run scoreboard players add collisions aviation.planes.temp 1
+                if debug:
+                    execute align xyz positioned f"{rotation_space}{1+(-x/2)}" f"{rotation_space}{1+(-y/2)}" f"{rotation_space}{1+(-z/2)}" run particle end_rod f"{rotation_space}{i}" f"{rotation_space}{k}" f"{rotation_space}{j}"
 
-def check_top_collisions(x:int,y:int,z:int,rotation_space:str):
-    data modify storage aviation.planes:temp collision.og_pos set from entity @s Pos
-    tp @s ^ ^ ^0.01
-    data modify entity @s Pos[0] set from storage aviation.planes:temp collision.og_pos[0]
-    data modify entity @s Pos[2] set from storage aviation.planes:temp collision.og_pos[2]
-    execute at @s:
-        check_collision(x,y,z,rotation_space)
-    data modify entity @s Pos[1] set from storage aviation.planes:temp collision.og_pos[1]
+    
