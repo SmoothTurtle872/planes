@@ -5,36 +5,6 @@ prefix = "aviation.plane"
 
 
 ## --- FUNCTIONS --- ##
-function aviation:planes/move/loop:
-    scoreboard players remove temp aviation.planes.velocity 1
-    tp @s ^ ^ ^0.01
-    utils.check_collision(3,3,3,"^")
-    execute if score collisions aviation.planes.temp matches 1..:
-        tp @s ^ ^ ^-0.01
-        scoreboard players set temp aviation.planes.velocity 0
-        scoreboard players set @s aviation.planes.velocity 0
-        execute positioned ~ ~-1 ~:
-            utils.check_collision(3,1,3,"^",True)
-            execute if score collisions aviation.planes.temp matches 1..:
-                tag @s remove f"{prefix}.state.in_air"
-                tag @s add f"{prefix}.state.on_ground"
-                scoreboard players set @s aviation.planes.pitch 6
-                scoreboard players set @s aviation.planes.roll 0
-            execute positioned ~ ~2 ~:
-                utils.check_collision(3,2,3,"^")
-                execute if score collisions aviation.planes.temp matches 1..:
-                    summon creeper ~ ~ ~ {powered:1b,CustomName:"a Plane Explosion", ExplosionRadius:10b,Fuse:0}
-                    execute on passengers if entity @s[tag=prefix] run kill @s
-                    kill @s
-
-
-    execute at @s if score temp aviation.planes.velocity matches 1.. run function aviation:planes/move/loop
-
-function aviation:planes/move:
-    scoreboard players operation temp aviation.planes.velocity = @s aviation.planes.velocity
-    execute at @s run function aviation:planes/move/loop
-
-
 function aviation:planes/new:
     execute summon interaction:
         tp @s ~ ~1 ~
@@ -63,10 +33,16 @@ function aviation:planes/new:
         scoreboard players set @s aviation.planes.pitch 0
         scoreboard players set @s aviation.planes.yaw 0
         scoreboard players set @s aviation.planes.roll 0
+#=================================================================================
+function aviation:planes/tick:
+    tag @s add f"{prefix}.self"
+    execute if data entity @s interaction:
+        execute on target run ride @s mount @n[tag=f"{prefix}.self"]
+        data remove entity @s interaction
 
-
-
-
+    function aviation:planes/state_controller
+    tag @s remove f"{prefix}.self"
+#=================================================================================
 function aviation:planes/state_controller:
     execute on passengers:
         if entity @s[type=player,predicate=aviation:planes/accellerate] as @n[tag=f"{prefix}.self"]:
@@ -112,18 +88,37 @@ function aviation:planes/state_controller:
     function quack:api/storage/euler_to_quaternion
     execute on passengers if entity @s[tag=aviation.plane.model]:
         data modify entity @s transformation.left_rotation set from storage quack:api quaternion
-    
+#=================================================================================
+function aviation:planes/move:
+    scoreboard players operation temp aviation.planes.velocity = @s aviation.planes.velocity
+    execute at @s run function aviation:planes/move/loop
+#=================================================================================
+function aviation:planes/move/loop:
+    scoreboard players remove temp aviation.planes.velocity 1
+    tp @s ^ ^ ^0.01
+    utils.check_collision(3,3,3,"^")
+    execute if score collisions aviation.planes.temp matches 1..:
+        tp @s ^ ^ ^-0.01
+        scoreboard players set temp aviation.planes.velocity 0
+        scoreboard players set @s aviation.planes.velocity 0
+        execute positioned ~ ~-1 ~:
+            utils.check_collision(3,1,3,"^",True)
+            execute if score collisions aviation.planes.temp matches 1..:
+                tag @s remove f"{prefix}.state.in_air"
+                tag @s add f"{prefix}.state.on_ground"
+                scoreboard players set @s aviation.planes.pitch 6
+                scoreboard players set @s aviation.planes.roll 0
+            execute positioned ~ ~2 ~:
+                utils.check_collision(3,2,3,"^")
+                execute if score collisions aviation.planes.temp matches 1..:
+                    summon creeper ~ ~ ~ {powered:1b,CustomName:"a Plane Explosion", ExplosionRadius:10b,Fuse:0}
+                    execute on passengers if entity @s[tag=prefix] run kill @s
+                    kill @s
+
+
+    execute at @s if score temp aviation.planes.velocity matches 1.. run function aviation:planes/move/loop
+
         
-
-function aviation:planes/tick:
-    tag @s add f"{prefix}.self"
-    execute if data entity @s interaction:
-        execute on target run ride @s mount @n[tag=f"{prefix}.self"]
-        data remove entity @s interaction
-
-    function aviation:planes/state_controller
-    tag @s remove f"{prefix}.self"
-
 
 
 ## --- PREDICATES --- ##
