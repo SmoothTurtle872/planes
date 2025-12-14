@@ -41,45 +41,45 @@ function aviation:planes/tick:
         data remove entity @s interaction
 
     function aviation:planes/state_controller
+    function aviation:planes/move/controller
+    function aviation:planes/visuals/rotation
     tag @s remove f"{prefix}.self"
 #=================================================================================
-function aviation:planes/state_controller:
+function aviation:planes/state_controller:   
+    # -- States -- #
+    execute if entity @s[tag=f"{prefix}.state.in_air",tag=!f"{prefix}.state.on_ground"] run function aviation:planes/states/air
+    execute if entity @s[tag=f"{prefix}.state.on_ground",tag=!f"{prefix}.state.in_air"] run function aviation:planes/states/ground
+#--------------------------------------------------------------------------------
+function aviation:planes/states/air:
+    utils.scale_plane_value(value_score="aviation.planes.velocity",amount_id="ground_friction", amount_score="aviation.planes.constants")
+    # -- Air Controls -- #
+    scoreboard players remove @s aviation.planes.pitch 1
     execute on passengers:
-        if entity @s[type=player,predicate=aviation:planes/accellerate] as @n[tag=f"{prefix}.self"]:
-            scoreboard players add @s aviation.planes.velocity 100
-            execute if score @s aviation.planes.velocity matches 801.. run scoreboard players set @s aviation.planes.velocity 800
+        # - Pitch - #
+        if entity @s[type=player,predicate=aviation:planes/pitch/up] as @n[tag=f"{prefix}.self"]:
+            scoreboard players add @s aviation.planes.pitch 31
+        if entity @s[type=player,predicate=aviation:planes/pitch/down] as @n[tag=f"{prefix}.self"]:
+            scoreboard players remove @s aviation.planes.pitch 29
+        # - Roll - #
+        if entity @s[type=player,predicate=aviation:planes/roll/left] as @n[tag=f"{prefix}.self"]:
+            scoreboard players add @s aviation.planes.roll 30
+        if entity @s[type=player,predicate=aviation:planes/roll/right] as @n[tag=f"{prefix}.self"]:
+            scoreboard players remove @s aviation.planes.roll 30
 
-    execute if entity @s[tag=f"{prefix}.state.in_air",tag=!f"{prefix}.state.on_ground"]:
-        utils.scale_plane_value(value_score="aviation.planes.velocity",amount_id="ground_friction", amount_score="aviation.planes.constants")
-        # -- Controls -- #
-        scoreboard players remove @s aviation.planes.pitch 1
-        execute on passengers:
-            # - Pitch - #
-            if entity @s[type=player,predicate=aviation:planes/pitch/up] as @n[tag=f"{prefix}.self"]:
-                scoreboard players add @s aviation.planes.pitch 31
-            if entity @s[type=player,predicate=aviation:planes/pitch/down] as @n[tag=f"{prefix}.self"]:
-                scoreboard players remove @s aviation.planes.pitch 29
-            # - Roll - #
-            if entity @s[type=player,predicate=aviation:planes/roll/left] as @n[tag=f"{prefix}.self"]:
-                scoreboard players add @s aviation.planes.roll 30
-            if entity @s[type=player,predicate=aviation:planes/roll/right] as @n[tag=f"{prefix}.self"]:
-                scoreboard players remove @s aviation.planes.roll 30
+    execute if score @s aviation.planes.pitch matches 90001.. run scoreboard players set @s aviation.planes.pitch 90000
+    execute if score @s aviation.planes.pitch matches ..-90001 run scoreboard players set @s aviation.planes.pitch -90000
 
-        execute if score @s aviation.planes.pitch matches 90001.. run scoreboard players set @s aviation.planes.pitch 90000
-        execute if score @s aviation.planes.pitch matches ..-90001 run scoreboard players set @s aviation.planes.pitch -90000
-
-        execute store result storage aviation.planes:temp controls.roll.scaled float 0.01 run scoreboard players get @s aviation.planes.roll
-        execute store result score yaw_add aviation.planes.math run data get storage aviation.planes:temp controls.roll.scaled
-        scoreboard players operation @s aviation.planes.yaw += yaw_add aviation.planes.math
-
-    execute if entity @s[tag=f"{prefix}.state.on_ground",tag=!f"{prefix}.state.in_air"]:
-        utils.scale_plane_value(value_score="aviation.planes.velocity",amount_id="ground_friction", amount_score="aviation.planes.constants")
-        
-        execute if score @s aviation.planes.velocity matches 500.. on passengers if entity @s[type=player,predicate=aviation:planes/pitch/up] as @n[tag=f"{prefix}.self"]:
-            tag @s remove f"{prefix}.state.on_ground"
-            tag @s add f"{prefix}.state.in_air"
-
-    execute if score @s aviation.planes.velocity matches 1.. run function aviation:planes/move
+    execute store result storage aviation.planes:temp controls.roll.scaled float 0.01 run scoreboard players get @s aviation.planes.roll
+    execute store result score yaw_add aviation.planes.math run data get storage aviation.planes:temp controls.roll.scaled
+    scoreboard players operation @s aviation.planes.yaw += yaw_add aviation.planes.math
+#---------------------------------------------------------------------------------
+function aviation:planes/states/ground:
+    utils.scale_plane_value(value_score="aviation.planes.velocity",amount_id="ground_friction", amount_score="aviation.planes.constants")
+    execute if score @s aviation.planes.velocity matches 500.. on passengers if entity @s[type=player,predicate=aviation:planes/pitch/up] as @n[tag=f"{prefix}.self"]:
+        tag @s remove f"{prefix}.state.on_ground"
+        tag @s add f"{prefix}.state.in_air"
+#=================================================================================
+function aviation:planes/visuals/rotation:
     execute store result entity @s Rotation[1] float -0.01 run scoreboard players get @s aviation.planes.pitch
     execute store result entity @s Rotation[0] float -0.01 run scoreboard players get @s aviation.planes.yaw
     execute store result storage quack:api euler[0] float -0.01 run scoreboard players get @s aviation.planes.yaw
@@ -89,10 +89,17 @@ function aviation:planes/state_controller:
     execute on passengers if entity @s[tag=aviation.plane.model]:
         data modify entity @s transformation.left_rotation set from storage quack:api quaternion
 #=================================================================================
-function aviation:planes/move:
+function aviation:planes/move/controller:
+    execute on passengers:
+        if entity @s[type=player,predicate=aviation:planes/accellerate] as @n[tag=f"{prefix}.self"]:
+            scoreboard players add @s aviation.planes.velocity 100
+            execute if score @s aviation.planes.velocity matches 801.. run scoreboard players set @s aviation.planes.velocity 800
+    execute if score @s aviation.planes.velocity matches 1.. run function aviation:planes/move/prep
+#---------------------------------------------------------------------------------
+function aviation:planes/move/prep:
     scoreboard players operation temp aviation.planes.velocity = @s aviation.planes.velocity
     execute at @s run function aviation:planes/move/loop
-#=================================================================================
+#---------------------------------------------------------------------------------
 function aviation:planes/move/loop:
     scoreboard players remove temp aviation.planes.velocity 1
     tp @s ^ ^ ^0.01
