@@ -22,5 +22,6 @@
         "bolt": {
             "entrypoint": ["aviation:main"]
         }
-    }
+    },
+    "minecraft":"1.21"
 }

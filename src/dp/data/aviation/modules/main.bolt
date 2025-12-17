@@ -14,7 +14,9 @@ function aviation:load:
     scoreboard objectives add aviation.planes.math dummy
     scoreboard objectives add aviation.planes.temp dummy
     scoreboard objectives add aviation.planes.constants dummy
-    scoreboard players set ground_friction aviation.planes.constants 90
+    scoreboard players set ground_friction aviation.planes.constants 99
+
+    gamerule max_command_sequence_length 2147483647
 
 
 append function_tag minecraft:load {
