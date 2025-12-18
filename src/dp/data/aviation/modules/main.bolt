@@ -1,8 +1,5 @@
 import aviation:plane as plane
-
-
-
-
+import aviation:items as items
 
 function aviation:load:
     tellraw @a [{text:"The Code is Load! ", color:"green"},{text:"(Aviation)",color:"gray"}]
@@ -10,11 +7,15 @@ function aviation:load:
     scoreboard objectives add aviation.planes.pitch dummy
     scoreboard objectives add aviation.planes.roll dummy
     scoreboard objectives add aviation.planes.yaw dummy
+    scoreboard objectives add aviation.planes.maneuverability dummy
     scoreboard objectives add aviation.planes.velocity dummy
+    scoreboard objectives add aviation.planes.velocity.max dummy
+    scoreboard objectives add aviation.planes.accelleration dummy
     scoreboard objectives add aviation.planes.math dummy
     scoreboard objectives add aviation.planes.temp dummy
     scoreboard objectives add aviation.planes.constants dummy
-    scoreboard players set ground_friction aviation.planes.constants 99
+    scoreboard players set ground_friction aviation.planes.constants 70
+    scoreboard players set air_friction aviation.planes.constants 90
 
     gamerule max_command_sequence_length 2147483647
 
@@ -28,6 +29,7 @@ append function_tag minecraft:load {
 
 function aviation:tick:
     execute as @e[tag=aviation.plane,tag=aviation.plane.root] run function aviation:planes/tick
+    execute as @e[tag=aviation.plane.spawner] at @s run function aviation:planes/spawner
 
 append function_tag minecraft:tick {
     "values" : [

@@ -1,0 +1,70 @@
+def replace_item(original:str,replacement:str):
+    execute if items entity @s container.* original:
+        for i in range(50):
+            execute if items entity @s f"container.{i}" original run item replace entity @s f"container.{i}" with replacement
+
+function aviation:item/give:
+    replace_item('enchanted_book[stored_enchantments={"aviation:planes/biplane":1}]','armor_stand[entity_data={id:"minecraft:armor_stand",Tags:["aviation.plane.spawner","aviation.plane.spawner.biplane"]},item_model="aviation:small_oak_biplane",item_name="Simple Biplane"]')
+
+function aviation:item/check_all:
+    execute as @a run function aviation:item/give
+    
+
+function aviation:item/detect:
+    advancement revoke @s only aviation:item
+    schedule function aviation:item/check_all 1t replace
+
+enchantment aviation:planes/biplane {
+	"description": {
+		"text": "!Aviation Simple Biplane"
+	},
+	"supported_items": [],
+	"weight": 1,
+	"max_level": 1,
+	"min_cost": {
+		"base": 999,
+		"per_level_above_first": 0
+	},
+	"max_cost": {
+		"base": 999,
+		"per_level_above_first": 0
+	},
+	"anvil_cost": 0,
+	"slots": []
+}
+
+append enchantment_tag aviation:items {
+    "values":[
+        "aviation:planes/biplane"
+    ]
+}
+
+advancement aviation:item {
+	"criteria": {
+		"obtain": {
+			"trigger": "minecraft:inventory_changed",
+			"conditions": {
+				"items": [
+					{
+						"predicates": {
+							"minecraft:stored_enchantments": [
+								{
+									"enchantments": "#aviation:items"
+								}
+							]
+						}
+					}
+				]
+			}
+		}
+	},
+	"requirements": [
+		[
+			"obtain"
+		]
+	],
+	"rewards": {
+		"function": "aviation:item/detect"
+	}
+}
+
